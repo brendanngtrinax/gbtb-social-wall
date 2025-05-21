@@ -14,7 +14,9 @@
 >
   {#each { length: numOfCols } as _, j}
     {#each { length: numOfRows } as _, i}
-      <div class="short-card-{i}{j} opacity-0 transition-opacity duration-200">
+      <div
+        class="row-span-1 short-card-{i}{j} opacity-0 transition-opacity duration-200"
+      >
         <Card
           name={shortCards[i][j].name}
           pledge={shortCards[i][j].pledge}
@@ -24,7 +26,9 @@
       </div>
     {/each}
     {#each { length: numOfLongRows } as _, i}
-      <div class="long-card-{i}{j} hidden">
+      <div
+        class="row-span-2 long-card-{i}{j} hidden transition-opacity duration-200"
+      >
         <Longcard
           name={longCards[i][j].name}
           pledge={longCards[i][j].pledge}
