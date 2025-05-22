@@ -80,26 +80,6 @@
     return document.querySelector(`.long-card-${i}${j}`) as HTMLDivElement;
   }
 
-  function switchSmalltoLong(
-    smallElement1: HTMLDivElement,
-    smallElement2: HTMLDivElement,
-    longElement: HTMLDivElement,
-  ) {
-    smallElement1.classList.add("hidden");
-    smallElement2.classList.add("hidden");
-    longElement.classList.remove("hidden");
-  }
-
-  function switchLongtoSmall(
-    smallElement1: HTMLDivElement,
-    smallElement2: HTMLDivElement,
-    longElement: HTMLDivElement,
-  ) {
-    longElement.classList.add("hidden");
-    smallElement1.classList.remove("hidden");
-    smallElement2.classList.remove("hidden");
-  }
-
   function getPosXandY(element: HTMLDivElement) {
     let posX = element.getBoundingClientRect().x;
     let posY = element.getBoundingClientRect().y;
@@ -118,37 +98,51 @@
       if (index < 0 || index >= numOfLongRows) {
         continue;
       } else {
-        longCards[index][j].status = "claimed";
+        longCards[index][j].status = "hidden";
       }
     }
-    let element = getSmallCardElement(i, j);
-    element.classList.add("opacity-100");
     shortCards = shortCards;
     longCards = longCards;
   }
 
-  function handleShortRelease(i: number, j: number) {
-    shortCards[i][j].status = "free";
-
-    for (let k = 0; k < ratio; k++) {
-      let start = i - k;
-      if (start < 0 || start + ratio > numOfRows) continue;
-
-      // Check if all shortCards from start to start + ratio are "free"
-      let allFree = true;
-      for (let offset = 0; offset < ratio; offset++) {
-        if (shortCards[start + offset][j].status !== "free") {
-          allFree = false;
-          break;
+  function mergeServiceRoutine() {
+    // Iterate through all long cards
+    for (let i = 0; i < numOfLongRows; i++) {
+      for (let j = 0; j < numOfCols; j++) {
+        // If a long card is not already free, check if it can be freed
+        if (longCards[i][j].status === "hidden") {
+          let canBeFreed = true;
+          // Check the status of the short cards that this long card overlaps
+          for (let k = 0; k < ratio; k++) {
+            let shortCardIndex = i + k;
+            if (shortCardIndex < 0 || shortCardIndex >= numOfRows) {
+              // This should not happen, but defensive programming is good.
+              continue;
+            }
+            if (shortCards[shortCardIndex][j].status !== "free") {
+              canBeFreed = false;
+              break; // No need to check further short cards
+            }
+          }
+          // If all overlapping short cards are free, free the long card
+          if (canBeFreed) {
+            longCards[i][j].status = "transition";
+            setTimeout(() => {
+              longCards[i][j].status = "free";
+            }, 500);
+          }
         }
       }
-
-      if (allFree) {
-        longCards[start][j].status = "free";
-      }
     }
-    shortCards = shortCards;
     longCards = longCards;
+  }
+
+  function handleShortRelease(i: number, j: number) {
+    shortCards[i][j].status = "transition";
+    setTimeout(() => {
+      shortCards[i][j].status = "free";
+    }, 500);
+    shortCards = shortCards;
   }
 
   function delayedShortRemove(i: number, j: number) {
@@ -156,55 +150,45 @@
       () => {
         // check if queue is non-empty, only remove if queue is non-empty else recursive loop
         if (queue.length > 0) {
-          let element = getSmallCardElement(i, j);
-          element.classList.remove("opacity-100");
-          element.classList.add("opacity-0");
           handleShortRelease(i, j);
         } else {
           delayedShortRemove(i, j);
         }
       },
-      Math.floor(Math.random() * 2000) + 20000,
+      // Math.floor(Math.random() * 2000) + 20000,
+      10000,
     );
   }
 
   function handleLongClaim(i: number, j: number) {
     longCards[i][j].status = "claimed";
-    let longElement = getLongCardElement(i, j);
-    let shortElementArr = [];
 
     for (let k = 0; k < ratio; k++) {
       let index = i + k;
       if (index < 0 || index >= numOfRows) {
         continue;
       } else {
-        let shortelement = getSmallCardElement(index, j);
-        shortElementArr.push(shortelement);
-        shortCards[index][j].status = "claimed";
+        shortCards[index][j].status = "hidden";
       }
     }
-
-    switchSmalltoLong(shortElementArr[0], shortElementArr[1], longElement);
-    longElement.classList.add("opacity-100");
     longCards = longCards;
     shortCards = shortCards;
   }
 
   function handleLongRelease(i: number, j: number) {
-    longCards[i][j].status = "free";
-    let longElement = getLongCardElement(i, j);
-    let shortElementArr = [];
+    longCards[i][j].status = "transition";
+    setTimeout(() => {
+      longCards[i][j].status = "free";
+    }, 500);
 
     for (let k = 0; k < ratio; k++) {
       let start = i + k;
       if (start < 0 || start + ratio > numOfRows) continue;
-      // Check if all shortCards from start to start + ratio are "free"
-      shortCards[start][j].status = "free";
-      let shortElement = getSmallCardElement(start, j);
-      shortElementArr.push(shortElement);
+      shortCards[start][j].status = "transition";
+      setTimeout(() => {
+        shortCards[start][j].status = "free";
+      }, 500);
     }
-
-    switchLongtoSmall(shortElementArr[0], shortElementArr[1], longElement);
     longCards = longCards;
     shortCards = shortCards;
   }
@@ -214,24 +198,25 @@
       () => {
         // check if queue is non-empty, only remove if queue is non-empty else recursive loop
         if (queue.length > 0) {
-          let element = getLongCardElement(i, j);
-          element.classList.remove("opacity-100");
-          element.classList.add("opacity-0");
           handleLongRelease(i, j);
         } else {
           delayedLongRemove(i, j);
         }
       },
-      Math.floor(Math.random() * 2000) + 20000,
+      // Math.floor(Math.random() * 2000) + 20000,
+      10000,
     );
   }
 
   async function getServerData() {
     queue = queue.concat(await poll());
+    console.log("shortCards: ", shortCards);
+    console.log("longCards: ", longCards);
     console.log("Queue: ", queue);
   }
 
   function loop() {
+    mergeServiceRoutine();
     let nextCard: ShortCard | LongCard | undefined = queue.shift();
 
     if (!nextCard) {
@@ -266,9 +251,9 @@
           if (longCards[i][j].status === "free") {
             longCards[i][j] = nextCard;
             handleLongClaim(i, j);
-            let element = getLongCardElement(i, j);
-            let { posX, posY } = getPosXandY(element);
-            element.classList.add("opacity-100");
+            // let element = getLongCardElement(i, j);
+            // let { posX, posY } = getPosXandY(element);
+            // element.classList.add("opacity-100");
             delayedLongRemove(i, j);
             placed = true;
             break;

@@ -1,6 +1,6 @@
 export type Card = {
   type: "short" | "long";
-  status: "hidden" | "free" | "claimed";
+  status: "transition" | "hidden" | "free" | "claimed";
 };
 
 export type ShortCard = Card & {
