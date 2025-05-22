@@ -10,37 +10,44 @@
   class="grid grid-flow-col grid-rows-{numOfRows} gap-4 h-full place-items-center border"
 >
   {#each { length: numOfCols } as _, j}
-    {#each { length: numOfRows } as _, i}
-      {#if shortCards[i][j].status === "claimed"}
-        <div class="row-span-1 short-card-{i}{j}" out:fade={{ duration: 500 }}>
-          <Card
-            name={shortCards[i][j].name}
-            pledge={shortCards[i][j].pledge}
-            avatarIndex={shortCards[i][j].avatarIndex}
-            bgIndex={shortCards[i][j].backgroundIndex}
-          />
-        </div>
-      {:else if shortCards[i][j].status === "free"}
-        <div class="row-span-1 short-card-{i}{j} opacity-30">
-          <Card
-            name={shortCards[i][j].name}
-            pledge={shortCards[i][j].pledge}
-            avatarIndex={shortCards[i][j].avatarIndex}
-            bgIndex={shortCards[i][j].backgroundIndex}
-          />
-        </div>
+    {#each { length: numOfRows + numOfLongRows } as _, i}
+      {#if i % 2 === 0}
+        {@const f = Math.floor(i / 2)}
+        {#if shortCards[f][j].status === "claimed"}
+          <div
+            class="row-span-1 short-card-{f}{j}"
+            out:fade={{ duration: 500 }}
+          >
+            <Card
+              name={shortCards[f][j].name}
+              pledge={shortCards[f][j].pledge}
+              avatarIndex={shortCards[f][j].avatarIndex}
+              bgIndex={shortCards[f][j].backgroundIndex}
+            />
+          </div>
+        {:else if shortCards[f][j].status === "free"}
+          <div class="row-span-1 short-card-{f}{j} opacity-0">
+            <Card
+              name={shortCards[f][j].name}
+              pledge={shortCards[f][j].pledge}
+              avatarIndex={shortCards[f][j].avatarIndex}
+              bgIndex={shortCards[f][j].backgroundIndex}
+            />
+          </div>
+        {/if}
       {/if}
-    {/each}
-    {#each { length: numOfLongRows } as _, i}
-      {#if longCards[i][j].status === "claimed"}
-        <div class="row-span-2 long-card-{i}{j}" out:fade={{ duration: 500 }}>
-          <Longcard
-            name={longCards[i][j].name}
-            pledge={longCards[i][j].pledge}
-            avatarIndex={longCards[i][j].avatarIndex}
-            bgIndex={longCards[i][j].backgroundIndex}
-          />
-        </div>
+      {#if i % 2 === 1}
+        {@const f = Math.floor(i / 2)}
+        {#if longCards[f][j].status === "claimed"}
+          <div class="row-span-2 long-card-{f}{j}" out:fade={{ duration: 500 }}>
+            <Longcard
+              name={longCards[f][j].name}
+              pledge={longCards[f][j].pledge}
+              avatarIndex={longCards[f][j].avatarIndex}
+              bgIndex={longCards[f][j].backgroundIndex}
+            />
+          </div>
+        {/if}
       {/if}
     {/each}
   {/each}

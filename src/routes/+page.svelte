@@ -171,6 +171,29 @@
         shortCards[index][j].status = "hidden";
       }
     }
+
+    for (
+      let otherLongCardRow = 0;
+      otherLongCardRow < numOfLongRows;
+      otherLongCardRow++
+    ) {
+      if (otherLongCardRow === i) continue; // Skip the current long card
+
+      const currentLongCardStartRow = i;
+      const currentLongCardEndRow = i + ratio - 1;
+      const otherLongCardStartRow = otherLongCardRow;
+      const otherLongCardEndRow = otherLongCardRow + ratio - 1;
+
+      // Check for overlap:
+      if (
+        currentLongCardStartRow <= otherLongCardEndRow &&
+        currentLongCardEndRow >= otherLongCardStartRow &&
+        longCards[otherLongCardRow][j].status !== "free"
+      ) {
+        longCards[otherLongCardRow][j].status = "hidden";
+      }
+    }
+
     longCards = longCards;
     shortCards = shortCards;
   }
