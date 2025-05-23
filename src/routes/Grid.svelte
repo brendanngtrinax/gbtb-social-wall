@@ -2,52 +2,73 @@
   import Card from "$lib/Card.svelte";
   import Longcard from "$lib/Longcard.svelte";
   import { fade } from "svelte/transition";
+  import {
+    shortPositions,
+    longPositions,
+    cardWidth,
+    shortCardHeight,
+    longCardHeight,
+    shortCards,
+    longCards,
+  } from "$lib/stores";
 
-  let { numOfRows, numOfCols, numOfLongRows, shortCards, longCards } = $props();
+  /**
+   * shortPositions: 2D array of [x, y] coordinates of short cards
+   * longPositions: 2D array of [x, y] coordinates of long cards
+   * shortCards: 2D array of short cards to hold the content to be displayed
+   * longCards: 2D array of long cards to hold the content to be displayed
+   */
+  //   let {
+  //     shortPositions,
+  //     longPositions,
+  //     cardWidth,
+  //     shortCardHeight,
+  //     longCardHeight,
+  //     shortCards,
+  //     longCards,
+  //   } = $props();
 </script>
 
-<div
-  class="grid grid-flow-col grid-rows-{numOfRows} gap-4 h-full place-items-center border"
->
-  {#each { length: numOfCols } as _, j}
-    {#each { length: numOfRows + numOfLongRows } as _, i}
-      {#if i % 2 === 0}
-        {@const f = Math.floor(i / 2)}
-        {#if shortCards[f][j].status === "claimed"}
-          <div
-            class="row-span-1 short-card-{f}{j}"
-            out:fade={{ duration: 500 }}
-          >
-            <Card
-              name={shortCards[f][j].name}
-              pledge={shortCards[f][j].pledge}
-              avatarIndex={shortCards[f][j].avatarIndex}
-              bgIndex={shortCards[f][j].backgroundIndex}
-            />
-          </div>
-        {:else if shortCards[f][j].status === "free"}
-          <div class="row-span-1 short-card-{f}{j} opacity-0">
-            <Card
-              name={shortCards[f][j].name}
-              pledge={shortCards[f][j].pledge}
-              avatarIndex={shortCards[f][j].avatarIndex}
-              bgIndex={shortCards[f][j].backgroundIndex}
-            />
-          </div>
-        {/if}
+<div id="absolute-grid" class="border h-[60%] relative">
+  {#each $shortPositions as row, i}
+    {#each row as shortPos, j}
+      {#if $shortCards[i][j]}
+        {@const x = shortPos[0]}
+        {@const y = shortPos[1]}
+        <div
+          id="short-card-{i}-{j}"
+          class="absolute flex items-center justify-center"
+          style="left: {x}px; top: {y}px; width: {$cardWidth}px; height: {$shortCardHeight}px"
+          out:fade={{ duration: 500 }}
+        >
+          <Card
+            name={$shortCards[i][j].name}
+            pledge={$shortCards[i][j].pledge}
+            avatarIndex={$shortCards[i][j].avatarIndex}
+            backgroundIndex={$shortCards[i][j].backgroundIndex}
+          />
+        </div>
       {/if}
-      {#if i % 2 === 1}
-        {@const f = Math.floor(i / 2)}
-        {#if longCards[f][j].status === "claimed"}
-          <div class="row-span-2 long-card-{f}{j}" out:fade={{ duration: 500 }}>
-            <Longcard
-              name={longCards[f][j].name}
-              pledge={longCards[f][j].pledge}
-              avatarIndex={longCards[f][j].avatarIndex}
-              bgIndex={longCards[f][j].backgroundIndex}
-            />
-          </div>
-        {/if}
+    {/each}
+  {/each}
+  {#each $longPositions as row, i}
+    {#each row as longPos, j}
+      {@const x = longPos[0]}
+      {@const y = longPos[1]}
+      {#if $longCards[i][j]}
+        <div
+          id="long-card-{i}-{j}"
+          class="absolute flex items-center justify-center"
+          style="left: {x}px; top: {y}px; width: {$cardWidth}px; height: {$longCardHeight}px"
+          out:fade={{ duration: 500 }}
+        >
+          <Longcard
+            name={$longCards[i][j].name}
+            pledge={$longCards[i][j].pledge}
+            avatarIndex={$longCards[i][j].avatarIndex}
+            backgroundIndex={$longCards[i][j].backgroundIndex}
+          />
+        </div>
       {/if}
     {/each}
   {/each}

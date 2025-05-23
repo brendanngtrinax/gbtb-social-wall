@@ -1,15 +1,15 @@
 <script lang="ts">
-  let { name, pledge, avatarIndex, bgIndex } = $props();
+  let { name, pledge, avatarIndex, backgroundIndex } = $props();
   import { avatarImgPaths, backgroundImgPaths } from "$lib/shared";
 </script>
 
 <div
-  class="card-type-1 relative w-[300px] h-[150px] rounded-[20px] bg-purple-100 flex overflow-hidden transition ease-out shadow-lg"
+  class="card relative w-[300px] h-[150px] rounded-[20px] bg-purple-100 flex overflow-hidden transition ease-out shadow-lg"
 >
   <!-- Left side with decorative background -->
   <div
     class="w-1/2 h-full bg-cover bg-center"
-    style="background-image: url({backgroundImgPaths[bgIndex]})"
+    style="background-image: url({backgroundImgPaths[backgroundIndex]})"
   ></div>
 
   <!-- Right side with white content -->

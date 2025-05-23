@@ -1,4 +1,4 @@
-import type { ShortCard, LongCard } from "$lib/types";
+import type { ShortCardType, LongCardType } from "$lib/types";
 
 export const avatarImgPaths = [
   "/avatars/otter.png",
@@ -17,7 +17,7 @@ export const backgroundImgPaths = [
   "/backgrounds/lightblue.png",
 ];
 
-export const sampleShortCards: ShortCard[] = [
+export const sampleShortCards: ShortCardType[] = [
   {
     type: "short",
     status: "hidden",

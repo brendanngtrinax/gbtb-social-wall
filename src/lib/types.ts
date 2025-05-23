@@ -1,16 +1,16 @@
-export type Card = {
+export type CardType = {
   type: "short" | "long";
   status: "transition" | "hidden" | "free" | "claimed";
 };
 
-export type ShortCard = Card & {
+export type ShortCardType = CardType & {
   name: string;
   pledge: string;
   avatarIndex: number;
   backgroundIndex: number;
 };
 
-export type LongCard = Card & {
+export type LongCardType = CardType & {
   name: string;
   pledge: string;
   avatarIndex: number;
